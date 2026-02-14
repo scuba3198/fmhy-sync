@@ -1,4 +1,4 @@
-# FMHY Bookmark Sync (Brave/Chrome Extension)
+# FMHY Bookmark Sync (Chrome/Brave Extension)
 
 An automated tool to sync the [FMHY starred bookmarks](https://github.com/fmhy/bookmarks) directly into your browser bookmarks bar, neatly categorized.
 
@@ -11,7 +11,7 @@ An automated tool to sync the [FMHY starred bookmarks](https://github.com/fmhy/b
 ## Installation
 Since this is currently a developer-mode extension:
 1.  Download or clone this repository.
-2.  Open Brave (or Chrome) and navigate to `brave://extensions`.
+2.  Open Chrome (or Brave) and navigate to `chrome://extensions` or `brave://extensions`.
 3.  Enable **Developer mode** in the top right.
 4.  Click **Load unpacked** and select the folder where you downloaded this extension.
 
