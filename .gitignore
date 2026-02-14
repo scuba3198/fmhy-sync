@@ -1,0 +1,8 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Developer noise
+.vscode/
+.idea/
+*.log
