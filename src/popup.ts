@@ -27,9 +27,9 @@ function updateUI(): void {
         const countEl = document.getElementById(STORAGE_KEY_COUNT);
         const syncBtn = document.getElementById('syncBtn') as HTMLButtonElement | null;
 
-        if (lastSyncEl) lastSyncEl.textContent = data[STORAGE_KEY_LAST_SYNC] || 'Never';
-        if (statusEl) statusEl.textContent = data[STORAGE_KEY_STATUS] || STATUS_READY;
-        if (countEl) countEl.textContent = data[STORAGE_KEY_COUNT] || '0';
+        if (lastSyncEl) lastSyncEl.textContent = data[STORAGE_KEY_LAST_SYNC] ?? 'Never';
+        if (statusEl) statusEl.textContent = data[STORAGE_KEY_STATUS] ?? STATUS_READY;
+        if (countEl) countEl.textContent = data[STORAGE_KEY_COUNT] ?? '0';
 
         if (syncBtn) {
             syncBtn.disabled = (data[STORAGE_KEY_STATUS] === STATUS_SYNCING);

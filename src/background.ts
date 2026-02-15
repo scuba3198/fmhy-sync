@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
     BookmarkNode,
     isBookmarkFolder,
@@ -23,12 +24,12 @@ import {
 // Schedule sync for every Monday at 9:00 AM
 chrome.runtime.onInstalled.addListener(() => {
     setupAlarm();
-    syncBookmarks(); // Initial sync on install
+    void syncBookmarks(); // Initial sync on install
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === ALARM_NAME) {
-        syncBookmarks();
+        void syncBookmarks();
     }
 });
 
@@ -43,9 +44,9 @@ function setupAlarm(): void {
     nextMonday.setDate(now.getDate() + (daysUntilMonday === 0 ? 7 : daysUntilMonday));
     nextMonday.setHours(9, 0, 0, 0);
 
-    console.log(`Scheduling next sync for: ${nextMonday}`);
+    console.info(`Scheduling next sync for: ${nextMonday.toLocaleString()}`);
 
-    chrome.alarms.create(ALARM_NAME, {
+    void chrome.alarms.create(ALARM_NAME, {
         when: nextMonday.getTime(),
         periodInMinutes: ALARM_PERIOD_MINUTES
     });
@@ -55,9 +56,11 @@ function setupAlarm(): void {
  * Main entry point for synchronizing bookmarks from the remote source.
  * Fetches HTML, parses it via an offscreen document, and updates the local bookmark tree.
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 async function syncBookmarks(): Promise<void> {
-    console.log('Starting FMHY bookmark sync...');
-    updateStatus(STATUS_SYNCING);
+    console.info('Starting FMHY bookmark sync...');
+    const status: string = STATUS_SYNCING;
+    updateStatus(status);
 
     try {
         const html = await fetchFMHYBookmarks();
@@ -66,8 +69,8 @@ async function syncBookmarks(): Promise<void> {
         await updateBookmarkFolder(bookmarkTree);
         await saveSyncSuccess();
 
-        console.log('Sync complete.');
-    } catch (error) {
+        console.info('Sync complete.');
+    } catch (error: unknown) {
         handleSyncError(error);
     }
 }
@@ -78,7 +81,7 @@ async function syncBookmarks(): Promise<void> {
 async function fetchFMHYBookmarks(): Promise<string> {
     const response = await fetch(FMHY_URL);
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status.toString()}`);
     }
     return response.text();
 }
@@ -89,8 +92,9 @@ async function fetchFMHYBookmarks(): Promise<string> {
 function handleSyncError(error: unknown): void {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Sync failed:', message);
-    chrome.storage.local.set({
-        [STORAGE_KEY_STATUS]: `${STATUS_ERROR_PREFIX}${message}`
+    const statusMessage = `${STATUS_ERROR_PREFIX}${message}`;
+    void chrome.storage.local.set({
+        [STORAGE_KEY_STATUS]: statusMessage
     });
 }
 
@@ -180,13 +184,13 @@ async function createBookmarkTree(nodes: BookmarkNode[], parentId: string): Prom
 }
 
 function updateStatus(status: string): void {
-    chrome.storage.local.set({ [STORAGE_KEY_STATUS]: status });
+    void chrome.storage.local.set({ [STORAGE_KEY_STATUS]: status });
 }
 
 // Allow manual trigger from popup
 chrome.runtime.onMessage.addListener((request: unknown, _sender, sendResponse: (response: SyncNowResponse) => void) => {
     if (isSyncNowRequest(request)) {
-        syncBookmarks().then(() => sendResponse({ success: true }));
+        void syncBookmarks().then(() => { sendResponse({ success: true }); });
         return true; // Keep channel open for async response
     }
     return false;
@@ -196,6 +200,7 @@ function isSyncNowRequest(request: unknown): request is SyncNowRequest {
     return (
         typeof request === 'object' &&
         request !== null &&
-        (request as SyncNowRequest).action === ACTION_SYNC_NOW
+        'action' in request &&
+        (request as { action: unknown }).action === ACTION_SYNC_NOW
     );
 }
