@@ -49,12 +49,16 @@ function handleSyncClick(): void {
 
     const message: SyncNowRequest = { action: ACTION_SYNC_NOW };
 
-    chrome.runtime.sendMessage(message, undefined, (_response: unknown) => {
+    chrome.runtime.sendMessage(message, undefined, () => {
         // In strict mode with chrome-types, lastError might be missing from the namespace definition 
         // or require specific access. Casting to any is safe here as we know it exists at runtime.
-        const lastError = (chrome.runtime as any).lastError;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+        const runtime = chrome.runtime as any;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+        const lastError = runtime.lastError;
 
         if (lastError) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             console.error('Manual sync failed:', lastError.message);
             if (statusEl) statusEl.textContent = `${STATUS_ERROR_PREFIX}Background sync failed`;
         }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
     BookmarkNode,
     isBookmarkFolder,
@@ -56,7 +55,6 @@ function setupAlarm(): void {
  * Main entry point for synchronizing bookmarks from the remote source.
  * Fetches HTML, parses it via an offscreen document, and updates the local bookmark tree.
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 async function syncBookmarks(): Promise<void> {
     console.info('Starting FMHY bookmark sync...');
     const status: string = STATUS_SYNCING;
