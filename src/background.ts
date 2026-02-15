@@ -1,3 +1,5 @@
+import { BookmarkNode, isBookmarkFolder, ParseBookmarksRequest, ParseBookmarksResponse, SyncNowRequest, SyncNowResponse } from './types';
+
 const FMHY_URL = 'https://raw.githubusercontent.com/fmhy/bookmarks/main/fmhy_in_bookmarks_starred_only.html';
 const FOLDER_NAME = 'FMHY Starred';
 
@@ -13,7 +15,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     }
 });
 
-function setupAlarm() {
+function setupAlarm(): void {
     const now = new Date();
     const nextMonday = new Date();
 
@@ -32,7 +34,7 @@ function setupAlarm() {
     });
 }
 
-async function syncBookmarks() {
+async function syncBookmarks(): Promise<void> {
     console.log('Starting FMHY bookmark sync via Offscreen API...');
     updateStatus('Syncing...');
 
@@ -54,7 +56,7 @@ async function syncBookmarks() {
             count: 'Categorized'
         });
         console.log('Sync complete.');
-    } catch (error) {
+    } catch (error: any) {
         console.error('Sync failed:', error);
         chrome.storage.local.set({
             status: 'Error: ' + error.message
@@ -62,32 +64,32 @@ async function syncBookmarks() {
     }
 }
 
-async function parseWithOffscreen(html) {
+async function parseWithOffscreen(html: string): Promise<BookmarkNode[]> {
     // Check if offscreen document already exists
-    const contexts = await chrome.runtime.getContexts({
+    const contexts = await (chrome.runtime as any).getContexts({
         contextTypes: ['OFFSCREEN_DOCUMENT']
     });
 
     if (contexts.length === 0) {
         await chrome.offscreen.createDocument({
             url: 'offscreen.html',
-            reasons: ['DOM_PARSER'],
+            reasons: ['DOM_PARSER' as any],
             justification: 'To parse the FMHY Netscape-formatted bookmark file.'
         });
     }
 
-    const result = await chrome.runtime.sendMessage({
+    const result = await (chrome.runtime.sendMessage({
         action: 'parseBookmarks',
         html: html,
         folderName: FOLDER_NAME
-    });
+    }) as Promise<ParseBookmarksResponse>);
 
     return result.tree;
 }
 
-async function updateBookmarkFolder(bookmarkTree) {
+async function updateBookmarkFolder(bookmarkTree: BookmarkNode[]): Promise<void> {
     // 1. Find or create the root FMHY folder
-    let rootFolderId;
+    let rootFolderId: string;
     const nodes = await chrome.bookmarks.search({ title: FOLDER_NAME });
     const existingFolder = nodes.find(n => !n.url);
 
@@ -110,9 +112,9 @@ async function updateBookmarkFolder(bookmarkTree) {
     await createBookmarkTree(bookmarkTree, rootFolderId);
 }
 
-async function createBookmarkTree(nodes, parentId) {
+async function createBookmarkTree(nodes: BookmarkNode[], parentId: string): Promise<void> {
     for (const node of nodes) {
-        if (node.children) {
+        if (isBookmarkFolder(node)) {
             // Create folder
             const folder = await chrome.bookmarks.create({
                 parentId: parentId,
@@ -131,12 +133,12 @@ async function createBookmarkTree(nodes, parentId) {
     }
 }
 
-function updateStatus(status) {
+function updateStatus(status: string): void {
     chrome.storage.local.set({ status });
 }
 
 // Allow manual trigger from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request: any, sender, sendResponse: (response: SyncNowResponse) => void) => {
     if (request.action === 'syncNow') {
         syncBookmarks().then(() => sendResponse({ success: true }));
         return true; // Keep channel open for async response

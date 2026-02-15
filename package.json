@@ -1,0 +1,28 @@
+{
+  "name": "fmhy-sync",
+  "version": "1.0.0",
+  "description": "An automated tool to sync the [FMHY starred bookmarks](https://github.com/fmhy/bookmarks) directly into your browser bookmarks bar, neatly categorized.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scuba3198/fmhy-sync.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scuba3198/fmhy-sync/issues"
+  },
+  "homepage": "https://github.com/scuba3198/fmhy-sync#readme",
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.3.0",
+    "chrome-types": "^0.1.415",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

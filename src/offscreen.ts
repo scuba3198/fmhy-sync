@@ -1,12 +1,14 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+import { BookmarkNode, BookmarkFolder, ParseBookmarksRequest, ParseBookmarksResponse } from './types';
+
+(chrome.runtime.onMessage.addListener as any)((request: ParseBookmarksRequest, sender: any, sendResponse: (response: ParseBookmarksResponse) => void) => {
     if (request.action === 'parseBookmarks') {
         const tree = parseNetscapeBookmarks(request.html, request.folderName);
         sendResponse({ tree });
     }
 });
 
-function parseNetscapeBookmarks(html, folderName) {
-    const root = { title: folderName, children: [] };
+function parseNetscapeBookmarks(html: string, folderName: string): BookmarkNode[] {
+    const root: BookmarkFolder = { title: folderName, children: [] };
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
@@ -18,20 +20,20 @@ function parseNetscapeBookmarks(html, folderName) {
     return root.children;
 }
 
-function processDL(dlElement, parentNode) {
+function processDL(dlElement: Element, parentNode: BookmarkFolder): void {
     // Use a more robust approach: iterate through all children (DT, DL, P)
     // and maintain state about the current folder.
     const children = Array.from(dlElement.children);
-    let currentFolderNode = null;
+    let currentFolderNode: BookmarkFolder | null = null;
 
     for (const child of children) {
         if (child.tagName === 'DT') {
             const h3 = child.querySelector('h3');
-            const a = child.querySelector('a');
+            const a = child.querySelector('a') as HTMLAnchorElement | null;
             const nestedDL = child.querySelector('dl');
 
             if (h3) {
-                const folderName = h3.textContent.trim();
+                const folderName = h3.textContent?.trim() || '';
 
                 // Skip placeholders like "/"
                 if (folderName === '/') {
@@ -53,11 +55,11 @@ function processDL(dlElement, parentNode) {
                 }
             } else if (a) {
                 parentNode.children.push({
-                    title: a.textContent.trim(),
+                    title: a.textContent?.trim() || '',
                     url: a.href
                 });
             }
-        } else if (child.tagName === 'DL' && !child.previousElementSibling.querySelector('h3')) {
+        } else if (child.tagName === 'DL' && !child.previousElementSibling?.querySelector('h3')) {
             // Sometimes a DL appears without a preceding H3 (rare in Netscape but possible)
             processDL(child, parentNode);
         }

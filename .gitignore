@@ -11,3 +11,7 @@ Thumbs.db
 .claude/
 .codex/
 .cursor/
+
+# Build and dependencies
+node_modules/
+dist/
