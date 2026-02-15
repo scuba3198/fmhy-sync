@@ -1,10 +1,14 @@
-import { BookmarkNode, BookmarkFolder, ParseBookmarksRequest, ParseBookmarksResponse } from './types';
+import { BookmarkNode, BookmarkFolder, ParseBookmarksRequest } from './types';
 
-(chrome.runtime.onMessage.addListener as any)((request: ParseBookmarksRequest, sender: any, sendResponse: (response: ParseBookmarksResponse) => void) => {
+/**
+ * Listen for messages from the background script.
+ */
+chrome.runtime.onMessage.addListener((request: ParseBookmarksRequest, _sender, sendResponse) => {
     if (request.action === 'parseBookmarks') {
         const tree = parseNetscapeBookmarks(request.html, request.folderName);
         sendResponse({ tree });
     }
+    return false; // Synchronous response
 });
 
 function parseNetscapeBookmarks(html: string, folderName: string): BookmarkNode[] {

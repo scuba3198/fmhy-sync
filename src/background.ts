@@ -1,4 +1,4 @@
-import { BookmarkNode, isBookmarkFolder, ParseBookmarksRequest, ParseBookmarksResponse, SyncNowRequest, SyncNowResponse } from './types';
+import { BookmarkNode, isBookmarkFolder, ParseBookmarksResponse, SyncNowResponse } from './types';
 
 const FMHY_URL = 'https://raw.githubusercontent.com/fmhy/bookmarks/main/fmhy_in_bookmarks_starred_only.html';
 const FOLDER_NAME = 'FMHY Starred';
@@ -34,46 +34,75 @@ function setupAlarm(): void {
     });
 }
 
+/**
+ * Main entry point for synchronizing bookmarks from the remote source.
+ * Fetches HTML, parses it via an offscreen document, and updates the local bookmark tree.
+ */
 async function syncBookmarks(): Promise<void> {
-    console.log('Starting FMHY bookmark sync via Offscreen API...');
+    console.log('Starting FMHY bookmark sync...');
     updateStatus('Syncing...');
 
     try {
-        const response = await fetch(FMHY_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const html = await response.text();
-
-        // Use Offscreen Document to parse HTML since DOMParser is missing in Service Workers
+        const html = await fetchFMHYBookmarks();
         const bookmarkTree = await parseWithOffscreen(html);
-        console.log('Parsed bookmark tree.');
 
         await updateBookmarkFolder(bookmarkTree);
+        await saveSyncSuccess();
 
-        const timestamp = new Date().toLocaleString();
-        chrome.storage.local.set({
-            lastSync: timestamp,
-            status: 'Success',
-            count: 'Categorized'
-        });
         console.log('Sync complete.');
-    } catch (error: any) {
-        console.error('Sync failed:', error);
-        chrome.storage.local.set({
-            status: 'Error: ' + error.message
-        });
+    } catch (error) {
+        handleSyncError(error);
     }
 }
 
+/**
+ * Fetches the raw HTML from the FMHY GitHub repository.
+ */
+async function fetchFMHYBookmarks(): Promise<string> {
+    const response = await fetch(FMHY_URL);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.text();
+}
+
+/**
+ * Handles errors during the sync process.
+ */
+function handleSyncError(error: unknown): void {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Sync failed:', message);
+    chrome.storage.local.set({
+        status: `Error: ${message}`
+    });
+}
+
+/**
+ * Saves the successful sync state to storage.
+ */
+async function saveSyncSuccess(): Promise<void> {
+    const timestamp = new Date().toLocaleString();
+    await chrome.storage.local.set({
+        lastSync: timestamp,
+        status: 'Success',
+        count: 'Categorized'
+    });
+}
+
+/**
+ * Leverages the Offscreen API to parse HTML content using DOMParser.
+ * Passes the heavy lifting to an offscreen document since Service Workers lack DOM access.
+ */
 async function parseWithOffscreen(html: string): Promise<BookmarkNode[]> {
     // Check if offscreen document already exists
-    const contexts = await (chrome.runtime as any).getContexts({
+    const contexts = await chrome.runtime.getContexts({
         contextTypes: ['OFFSCREEN_DOCUMENT']
     });
 
     if (contexts.length === 0) {
         await chrome.offscreen.createDocument({
             url: 'offscreen.html',
-            reasons: ['DOM_PARSER' as any],
+            reasons: ['DOM_PARSER'],
             justification: 'To parse the FMHY Netscape-formatted bookmark file.'
         });
     }
@@ -138,9 +167,10 @@ function updateStatus(status: string): void {
 }
 
 // Allow manual trigger from popup
-chrome.runtime.onMessage.addListener((request: any, sender, sendResponse: (response: SyncNowResponse) => void) => {
+chrome.runtime.onMessage.addListener((request: any, _sender, sendResponse: (response: SyncNowResponse) => void) => {
     if (request.action === 'syncNow') {
         syncBookmarks().then(() => sendResponse({ success: true }));
         return true; // Keep channel open for async response
     }
+    return false;
 });

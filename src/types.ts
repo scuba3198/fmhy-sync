@@ -1,55 +1,83 @@
-/** A leaf bookmark with a URL */
+/**
+ * A leaf bookmark with a URL.
+ */
 export interface BookmarkLeaf {
-    title: string;
-    url: string;
+    /** The display name of the bookmark */
+    readonly title: string;
+    /** The destination URL */
+    readonly url: string;
 }
 
-/** A folder that contains children (folders or leaves) */
+/**
+ * A folder that contains children (folders or leaves).
+ */
 export interface BookmarkFolder {
-    title: string;
-    children: BookmarkNode[];
+    /** The name of the folder */
+    readonly title: string;
+    /** Ordered list of sub-nodes */
+    readonly children: BookmarkNode[];
 }
 
-/** Union type: a node is either a folder or a leaf */
+/**
+ * Union type: a node is either a folder or a leaf.
+ */
 export type BookmarkNode = BookmarkFolder | BookmarkLeaf;
 
-/** Type guard: check if a BookmarkNode is a folder */
+/**
+ * Type guard: check if a BookmarkNode is a folder.
+ * @param node The node to check.
+ */
 export function isBookmarkFolder(node: BookmarkNode): node is BookmarkFolder {
-    return 'children' in node;
+    return 'children' in (node as BookmarkFolder);
 }
 
 // ---- Chrome message payloads ----
 
-/** Message sent from background -> offscreen to request parsing */
+/**
+ * Message sent from background -> offscreen to request parsing.
+ */
 export interface ParseBookmarksRequest {
-    action: 'parseBookmarks';
-    html: string;
-    folderName: string;
+    readonly action: 'parseBookmarks';
+    readonly html: string;
+    readonly folderName: string;
 }
 
-/** Response from offscreen -> background with parsed tree */
+/**
+ * Response from offscreen -> background with parsed tree.
+ */
 export interface ParseBookmarksResponse {
-    tree: BookmarkNode[];
+    readonly tree: BookmarkNode[];
 }
 
-/** Message sent from popup -> background to trigger manual sync */
+/**
+ * Message sent from popup -> background to trigger manual sync.
+ */
 export interface SyncNowRequest {
-    action: 'syncNow';
+    readonly action: 'syncNow';
 }
 
-/** Response from background -> popup after sync completes */
+/**
+ * Response from background -> popup after sync completes.
+ */
 export interface SyncNowResponse {
-    success: boolean;
+    readonly success: boolean;
 }
 
-/** Union of all possible messages (for the listener discriminant) */
+/**
+ * Union of all possible messages.
+ */
 export type ExtensionMessage = ParseBookmarksRequest | SyncNowRequest;
 
 // ---- Storage shapes ----
 
-/** Shape of data stored in chrome.storage.local */
+/**
+ * Shape of data stored in chrome.storage.local.
+ */
 export interface SyncStorageData {
-    lastSync?: string;
-    status?: string;
-    count?: string;
+    /** Last successful sync timestamp (ISO or local locale string) */
+    readonly lastSync?: string;
+    /** Current status message or error */
+    readonly status?: string;
+    /** Number of bookmarks or category count */
+    readonly count?: string;
 }

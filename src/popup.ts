@@ -1,5 +1,8 @@
-import { SyncStorageData, SyncNowRequest, SyncNowResponse } from './types';
+import { SyncStorageData } from './types';
 
+/**
+ * Updates the popup UI with data from local storage.
+ */
 function updateUI(): void {
     chrome.storage.local.get(['lastSync', 'status', 'count'], (data: SyncStorageData) => {
         const lastSyncEl = document.getElementById('lastSync');
@@ -17,20 +20,27 @@ function updateUI(): void {
     });
 }
 
-document.getElementById('syncBtn')?.addEventListener('click', () => {
+/**
+ * Triggered when the user clicks the "Sync Now" button.
+ */
+function handleSyncClick(): void {
     const statusEl = document.getElementById('status');
     const syncBtn = document.getElementById('syncBtn') as HTMLButtonElement | null;
 
     if (statusEl) statusEl.textContent = 'Syncing...';
     if (syncBtn) syncBtn.disabled = true;
 
-    (chrome.runtime.sendMessage as any)({ action: 'syncNow' }, (response: any) => {
-        if ((chrome.runtime as any).lastError) {
+    (chrome.runtime.sendMessage as any)({ action: 'syncNow' }, () => {
+        const runtime = chrome.runtime as any;
+        if (runtime.lastError) {
+            console.error('Manual sync failed:', runtime.lastError.message);
             if (statusEl) statusEl.textContent = 'Error: Background sync failed';
         }
         updateUI();
     });
-});
+}
+
+document.getElementById('syncBtn')?.addEventListener('click', handleSyncClick);
 
 // Update UI every second while popup is open to catch status changes
 setInterval(updateUI, 1000);
