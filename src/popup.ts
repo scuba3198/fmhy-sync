@@ -1,21 +1,38 @@
-import { SyncStorageData } from './types';
+import {
+    SyncStorageData,
+    SyncNowRequest
+} from './types';
+import {
+    STORAGE_KEY_LAST_SYNC,
+    STORAGE_KEY_STATUS,
+    STORAGE_KEY_COUNT,
+    ACTION_SYNC_NOW,
+    STATUS_SYNCING,
+    STATUS_READY,
+    POPUP_UPDATE_INTERVAL_MS,
+    STATUS_ERROR_PREFIX
+} from './constants';
 
 /**
  * Updates the popup UI with data from local storage.
  */
 function updateUI(): void {
-    chrome.storage.local.get(['lastSync', 'status', 'count'], (data: SyncStorageData) => {
-        const lastSyncEl = document.getElementById('lastSync');
-        const statusEl = document.getElementById('status');
-        const countEl = document.getElementById('count');
+    chrome.storage.local.get([
+        STORAGE_KEY_LAST_SYNC,
+        STORAGE_KEY_STATUS,
+        STORAGE_KEY_COUNT
+    ], (data: SyncStorageData) => {
+        const lastSyncEl = document.getElementById(STORAGE_KEY_LAST_SYNC);
+        const statusEl = document.getElementById(STORAGE_KEY_STATUS);
+        const countEl = document.getElementById(STORAGE_KEY_COUNT);
         const syncBtn = document.getElementById('syncBtn') as HTMLButtonElement | null;
 
-        if (lastSyncEl) lastSyncEl.textContent = data.lastSync || 'Never';
-        if (statusEl) statusEl.textContent = data.status || 'Ready';
-        if (countEl) countEl.textContent = data.count || '0';
+        if (lastSyncEl) lastSyncEl.textContent = data[STORAGE_KEY_LAST_SYNC] || 'Never';
+        if (statusEl) statusEl.textContent = data[STORAGE_KEY_STATUS] || STATUS_READY;
+        if (countEl) countEl.textContent = data[STORAGE_KEY_COUNT] || '0';
 
         if (syncBtn) {
-            syncBtn.disabled = (data.status === 'Syncing...');
+            syncBtn.disabled = (data[STORAGE_KEY_STATUS] === STATUS_SYNCING);
         }
     });
 }
@@ -24,17 +41,22 @@ function updateUI(): void {
  * Triggered when the user clicks the "Sync Now" button.
  */
 function handleSyncClick(): void {
-    const statusEl = document.getElementById('status');
+    const statusEl = document.getElementById(STORAGE_KEY_STATUS);
     const syncBtn = document.getElementById('syncBtn') as HTMLButtonElement | null;
 
-    if (statusEl) statusEl.textContent = 'Syncing...';
+    if (statusEl) statusEl.textContent = STATUS_SYNCING;
     if (syncBtn) syncBtn.disabled = true;
 
-    (chrome.runtime.sendMessage as any)({ action: 'syncNow' }, () => {
-        const runtime = chrome.runtime as any;
-        if (runtime.lastError) {
-            console.error('Manual sync failed:', runtime.lastError.message);
-            if (statusEl) statusEl.textContent = 'Error: Background sync failed';
+    const message: SyncNowRequest = { action: ACTION_SYNC_NOW };
+
+    chrome.runtime.sendMessage(message, undefined, (_response: unknown) => {
+        // In strict mode with chrome-types, lastError might be missing from the namespace definition 
+        // or require specific access. Casting to any is safe here as we know it exists at runtime.
+        const lastError = (chrome.runtime as any).lastError;
+
+        if (lastError) {
+            console.error('Manual sync failed:', lastError.message);
+            if (statusEl) statusEl.textContent = `${STATUS_ERROR_PREFIX}Background sync failed`;
         }
         updateUI();
     });
@@ -43,5 +65,5 @@ function handleSyncClick(): void {
 document.getElementById('syncBtn')?.addEventListener('click', handleSyncClick);
 
 // Update UI every second while popup is open to catch status changes
-setInterval(updateUI, 1000);
+setInterval(updateUI, POPUP_UPDATE_INTERVAL_MS);
 updateUI();

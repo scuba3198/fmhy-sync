@@ -1,10 +1,11 @@
 import { BookmarkNode, BookmarkFolder, ParseBookmarksRequest } from './types';
+import { ACTION_PARSE_BOOKMARKS } from './constants';
 
 /**
  * Listen for messages from the background script.
  */
 chrome.runtime.onMessage.addListener((request: ParseBookmarksRequest, _sender, sendResponse) => {
-    if (request.action === 'parseBookmarks') {
+    if (request.action === ACTION_PARSE_BOOKMARKS) {
         const tree = parseNetscapeBookmarks(request.html, request.folderName);
         sendResponse({ tree });
     }

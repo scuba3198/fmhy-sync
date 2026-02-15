@@ -1,7 +1,24 @@
-import { BookmarkNode, isBookmarkFolder, ParseBookmarksResponse, SyncNowResponse } from './types';
-
-const FMHY_URL = 'https://raw.githubusercontent.com/fmhy/bookmarks/main/fmhy_in_bookmarks_starred_only.html';
-const FOLDER_NAME = 'FMHY Starred';
+import {
+    BookmarkNode,
+    isBookmarkFolder,
+    ParseBookmarksResponse,
+    SyncNowResponse,
+    SyncNowRequest
+} from './types';
+import {
+    FMHY_URL,
+    FOLDER_NAME,
+    ALARM_NAME,
+    ALARM_PERIOD_MINUTES,
+    ACTION_PARSE_BOOKMARKS,
+    ACTION_SYNC_NOW,
+    STORAGE_KEY_LAST_SYNC,
+    STORAGE_KEY_STATUS,
+    STORAGE_KEY_COUNT,
+    STATUS_SYNCING,
+    STATUS_SUCCESS,
+    STATUS_ERROR_PREFIX
+} from './constants';
 
 // Schedule sync for every Monday at 9:00 AM
 chrome.runtime.onInstalled.addListener(() => {
@@ -10,7 +27,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === 'weekly-sync') {
+    if (alarm.name === ALARM_NAME) {
         syncBookmarks();
     }
 });
@@ -28,9 +45,9 @@ function setupAlarm(): void {
 
     console.log(`Scheduling next sync for: ${nextMonday}`);
 
-    chrome.alarms.create('weekly-sync', {
+    chrome.alarms.create(ALARM_NAME, {
         when: nextMonday.getTime(),
-        periodInMinutes: 7 * 24 * 60 // 1 week
+        periodInMinutes: ALARM_PERIOD_MINUTES
     });
 }
 
@@ -40,7 +57,7 @@ function setupAlarm(): void {
  */
 async function syncBookmarks(): Promise<void> {
     console.log('Starting FMHY bookmark sync...');
-    updateStatus('Syncing...');
+    updateStatus(STATUS_SYNCING);
 
     try {
         const html = await fetchFMHYBookmarks();
@@ -73,7 +90,7 @@ function handleSyncError(error: unknown): void {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Sync failed:', message);
     chrome.storage.local.set({
-        status: `Error: ${message}`
+        [STORAGE_KEY_STATUS]: `${STATUS_ERROR_PREFIX}${message}`
     });
 }
 
@@ -83,9 +100,9 @@ function handleSyncError(error: unknown): void {
 async function saveSyncSuccess(): Promise<void> {
     const timestamp = new Date().toLocaleString();
     await chrome.storage.local.set({
-        lastSync: timestamp,
-        status: 'Success',
-        count: 'Categorized'
+        [STORAGE_KEY_LAST_SYNC]: timestamp,
+        [STORAGE_KEY_STATUS]: STATUS_SUCCESS,
+        [STORAGE_KEY_COUNT]: 'Categorized'
     });
 }
 
@@ -108,7 +125,7 @@ async function parseWithOffscreen(html: string): Promise<BookmarkNode[]> {
     }
 
     const result = await (chrome.runtime.sendMessage({
-        action: 'parseBookmarks',
+        action: ACTION_PARSE_BOOKMARKS,
         html: html,
         folderName: FOLDER_NAME
     }) as Promise<ParseBookmarksResponse>);
@@ -163,14 +180,22 @@ async function createBookmarkTree(nodes: BookmarkNode[], parentId: string): Prom
 }
 
 function updateStatus(status: string): void {
-    chrome.storage.local.set({ status });
+    chrome.storage.local.set({ [STORAGE_KEY_STATUS]: status });
 }
 
 // Allow manual trigger from popup
-chrome.runtime.onMessage.addListener((request: any, _sender, sendResponse: (response: SyncNowResponse) => void) => {
-    if (request.action === 'syncNow') {
+chrome.runtime.onMessage.addListener((request: unknown, _sender, sendResponse: (response: SyncNowResponse) => void) => {
+    if (isSyncNowRequest(request)) {
         syncBookmarks().then(() => sendResponse({ success: true }));
         return true; // Keep channel open for async response
     }
     return false;
 });
+
+function isSyncNowRequest(request: unknown): request is SyncNowRequest {
+    return (
+        typeof request === 'object' &&
+        request !== null &&
+        (request as SyncNowRequest).action === ACTION_SYNC_NOW
+    );
+}

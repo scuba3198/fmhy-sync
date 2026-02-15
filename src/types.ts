@@ -31,13 +31,19 @@ export function isBookmarkFolder(node: BookmarkNode): node is BookmarkFolder {
     return 'children' in (node as BookmarkFolder);
 }
 
-// ---- Chrome message payloads ----
+import {
+    ACTION_PARSE_BOOKMARKS,
+    ACTION_SYNC_NOW,
+    STORAGE_KEY_LAST_SYNC,
+    STORAGE_KEY_STATUS,
+    STORAGE_KEY_COUNT
+} from './constants';
 
 /**
  * Message sent from background -> offscreen to request parsing.
  */
 export interface ParseBookmarksRequest {
-    readonly action: 'parseBookmarks';
+    readonly action: typeof ACTION_PARSE_BOOKMARKS;
     readonly html: string;
     readonly folderName: string;
 }
@@ -53,7 +59,7 @@ export interface ParseBookmarksResponse {
  * Message sent from popup -> background to trigger manual sync.
  */
 export interface SyncNowRequest {
-    readonly action: 'syncNow';
+    readonly action: typeof ACTION_SYNC_NOW;
 }
 
 /**
@@ -75,9 +81,9 @@ export type ExtensionMessage = ParseBookmarksRequest | SyncNowRequest;
  */
 export interface SyncStorageData {
     /** Last successful sync timestamp (ISO or local locale string) */
-    readonly lastSync?: string;
+    readonly [STORAGE_KEY_LAST_SYNC]?: string;
     /** Current status message or error */
-    readonly status?: string;
+    readonly [STORAGE_KEY_STATUS]?: string;
     /** Number of bookmarks or category count */
-    readonly count?: string;
+    readonly [STORAGE_KEY_COUNT]?: string;
 }
