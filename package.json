@@ -1,6 +1,6 @@
 {
 	"name": "fmhy-sync",
-	"version": "1.1.3",
+	"version": "1.1.4",
 	"description": "An automated tool to sync the [FMHY starred bookmarks](https://github.com/fmhy/bookmarks) directly into your browser bookmarks bar, neatly categorized.",
 	"type": "module",
 	"scripts": {
