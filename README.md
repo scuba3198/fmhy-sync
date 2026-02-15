@@ -16,7 +16,18 @@ An automated tool to sync the [FMHY starred bookmarks](https://github.com/fmhy/b
 - **Privacy First**: Runs entirely in your browser; no data is sent to external servers.
 
 ## Installation
-Since this is a TypeScript project, you need to build it before installing:
+
+### Quick Install (Pre-built)
+If you don't want to build the extension from source:
+1.  Go to the [Releases](https://github.com/scuba3198/fmhy-sync/releases) page.
+2.  Download the latest `fmhy-sync-v*.zip` file.
+3.  Extract the zip file to a folder on your computer.
+4.  Open Chrome (or Brave) and navigate to `chrome://extensions`.
+5.  Enable **Developer mode** in the top right.
+6.  Click **Load unpacked** and select the folder you just extracted.
+
+### Build from Source
+If you prefer to build it yourself:
 1.  Clone this repository.
 2.  Install dependencies:
     ```bash
