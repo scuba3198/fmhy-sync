@@ -1,3 +1,7 @@
+/**
+ * Domain constants for the FMHY sync project.
+ */
+
 export const FMHY_URL =
 	"https://raw.githubusercontent.com/fmhy/bookmarks/main/fmhy_in_bookmarks_starred_only.html";
 export const FOLDER_NAME = "FMHY Starred";

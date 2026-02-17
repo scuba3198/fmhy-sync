@@ -4,11 +4,15 @@
 	"description": "An automated tool to sync the [FMHY starred bookmarks](https://github.com/fmhy/bookmarks) directly into your browser bookmarks bar, neatly categorized.",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "tsc --noEmit && vite build",
-		"typecheck": "tsc --noEmit",
-		"lint": "oxlint .",
-		"check": "oxlint --fix ."
+		"dev": "node scripts/build.js --watch",
+		"build": "node scripts/build.js",
+		"lint": "oxlint . --deny-warnings",
+		"format": "prettier . --write --plugin=@prettier/plugin-oxc",
+		"type-check": "tsc --noEmit",
+		"test": "vitest run",
+		"check": "run-s format lint type-check test",
+		"commit": "git add . && git commit -m",
+		"save": "npm run check && npm run commit --"
 	},
 	"repository": {
 		"type": "git",
@@ -22,11 +26,24 @@
 	},
 	"homepage": "https://github.com/scuba3198/fmhy-sync#readme",
 	"devDependencies": {
-		"@crxjs/vite-plugin": "^2.3.0",
+		"@esbuild-plugins/tsconfig-paths": "^0.1.2",
+		"@prettier/plugin-oxc": "latest",
 		"@tsconfig/strictest": "^2.0.8",
+		"@types/fs-extra": "^11.0.4",
+		"@types/jsdom": "^27.0.0",
 		"chrome-types": "^0.1.415",
-		"oxlint": "^1.48.0",
+		"esbuild": "latest",
+		"fs-extra": "^11.3.3",
+		"jsdom": "^28.1.0",
+		"npm-run-all": "latest",
+		"oxlint": "latest",
+		"prettier": "latest",
 		"typescript": "^5.9.3",
-		"vite": "^7.3.1"
+		"vitest": "latest"
+	},
+	"dependencies": {
+		"pino": "^10.3.1",
+		"pino-pretty": "^13.1.3",
+		"zod": "^4.3.6"
 	}
 }
