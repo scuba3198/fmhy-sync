@@ -6,12 +6,18 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+.eslintcache
 
 # Antigravity/Cursor/Claude noise
 .claude/
 .codex/
 .cursor/
+.gemini/
 
 # Build and dependencies
 node_modules/
 dist/
+*.zip
+
+# Tests
+coverage/
