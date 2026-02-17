@@ -7,9 +7,8 @@
 		"dev": "vite",
 		"build": "tsc --noEmit && vite build",
 		"typecheck": "tsc --noEmit",
-		"lint": "biome lint .",
-		"format": "biome format . --write",
-		"check": "biome check --write ."
+		"lint": "oxlint .",
+		"check": "oxlint --fix ."
 	},
 	"repository": {
 		"type": "git",
@@ -23,10 +22,10 @@
 	},
 	"homepage": "https://github.com/scuba3198/fmhy-sync#readme",
 	"devDependencies": {
-		"@biomejs/biome": "2.4.0",
 		"@crxjs/vite-plugin": "^2.3.0",
 		"@tsconfig/strictest": "^2.0.8",
 		"chrome-types": "^0.1.415",
+		"oxlint": "^1.48.0",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1"
 	}

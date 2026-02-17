@@ -48,6 +48,7 @@ If you prefer to build it yourself:
 ## Technology Stack
 - **TypeScript**: Core logic and type safety.
 - **Vite + CRXJS**: Build system and extension bundling.
+- **Oxlint**: Ultra-fast linting for JavaScript and TypeScript.
 - **Chrome Alarms API**: Scheduled synchronization.
 - **Chrome Offscreen API**: HTML parsing in a service worker environment.
 
