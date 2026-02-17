@@ -1,8 +1,7 @@
 import esbuild from "esbuild";
 import fs from "fs-extra";
 import path from "path";
-import tsconfigPathsPkg from "@esbuild-plugins/tsconfig-paths";
-const { tsconfigPaths } = tsconfigPathsPkg;
+import { TsconfigPathsPlugin as tsconfigPaths } from "@esbuild-plugins/tsconfig-paths";
 
 const isWatch = process.argv.includes("--watch");
 
