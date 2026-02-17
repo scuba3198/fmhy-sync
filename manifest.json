@@ -3,8 +3,15 @@
 	"name": "FMHY Bookmark Sync",
 	"version": "1.1.4",
 	"description": "Automatically syncs FMHY starred bookmarks from GitHub every Monday.",
-	"permissions": ["bookmarks", "alarms", "storage", "offscreen"],
-	"host_permissions": ["https://raw.githubusercontent.com/fmhy/bookmarks/*"],
+	"permissions": [
+		"bookmarks",
+		"alarms",
+		"storage",
+		"offscreen"
+	],
+	"host_permissions": [
+		"https://raw.githubusercontent.com/fmhy/bookmarks/*"
+	],
 	"action": {
 		"default_popup": "popup.html",
 		"default_icon": {
@@ -14,7 +21,7 @@
 		}
 	},
 	"background": {
-		"service_worker": "src/background.ts",
+		"service_worker": "background.js",
 		"type": "module"
 	},
 	"icons": {

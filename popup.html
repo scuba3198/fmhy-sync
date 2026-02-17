@@ -1,86 +1,88 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<style>
-			body {
-				width: 250px;
-				padding: 15px;
-				font-family:
-					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-				background-color: #f8f9fa;
-				color: #333;
-			}
 
-			h2 {
-				font-size: 16px;
-				margin-top: 0;
-				color: #ff4500;
-				border-bottom: 2px solid #ff4500;
-				padding-bottom: 5px;
-			}
+<head>
+	<meta charset="UTF-8" />
+	<style>
+		body {
+			width: 250px;
+			padding: 15px;
+			font-family:
+				-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			background-color: #f8f9fa;
+			color: #333;
+		}
 
-			.status-box {
-				background: white;
-				padding: 10px;
-				border-radius: 8px;
-				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-				margin-bottom: 15px;
-			}
+		h2 {
+			font-size: 16px;
+			margin-top: 0;
+			color: #ff4500;
+			border-bottom: 2px solid #ff4500;
+			padding-bottom: 5px;
+		}
 
-			.status-item {
-				font-size: 13px;
-				margin: 5px 0;
-			}
+		.status-box {
+			background: white;
+			padding: 10px;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			margin-bottom: 15px;
+		}
 
-			.label {
-				font-weight: bold;
-				color: #666;
-			}
+		.status-item {
+			font-size: 13px;
+			margin: 5px 0;
+		}
 
-			button {
-				width: 100%;
-				padding: 10px;
-				background-color: #ff4500;
-				color: white;
-				border: none;
-				border-radius: 5px;
-				cursor: pointer;
-				font-weight: bold;
-				transition: background-color 0.2s;
-			}
+		.label {
+			font-weight: bold;
+			color: #666;
+		}
 
-			button:hover {
-				background-color: #e63e00;
-			}
+		button {
+			width: 100%;
+			padding: 10px;
+			background-color: #ff4500;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-weight: bold;
+			transition: background-color 0.2s;
+		}
 
-			button:disabled {
-				background-color: #ccc;
-				cursor: not-allowed;
-			}
+		button:hover {
+			background-color: #e63e00;
+		}
 
-			.footer {
-				font-size: 11px;
-				color: #888;
-				text-align: center;
-				margin-top: 10px;
-			}
-		</style>
-	</head>
+		button:disabled {
+			background-color: #ccc;
+			cursor: not-allowed;
+		}
 
-	<body>
-		<h2>FMHY Sync</h2>
-		<div class="status-box">
-			<div class="status-item">
-				<span class="label">Status:</span> <span id="status">Checking...</span>
-			</div>
-			<div class="status-item">
-				<span class="label">Last Sync:</span> <span id="lastSync">Never</span>
-			</div>
-			<div class="status-item"><span class="label">Bookmarks:</span> <span id="count">0</span></div>
+		.footer {
+			font-size: 11px;
+			color: #888;
+			text-align: center;
+			margin-top: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>FMHY Sync</h2>
+	<div class="status-box">
+		<div class="status-item">
+			<span class="label">Status:</span> <span id="status">Checking...</span>
 		</div>
-		<button id="syncBtn" type="button">Sync Now</button>
-		<div class="footer">Updates automatically every Monday</div>
-		<script type="module" src="./src/popup.ts"></script>
-	</body>
+		<div class="status-item">
+			<span class="label">Last Sync:</span> <span id="lastSync">Never</span>
+		</div>
+		<div class="status-item"><span class="label">Bookmarks:</span> <span id="count">0</span></div>
+	</div>
+	<button id="syncBtn" type="button">Sync Now</button>
+	<div class="footer">Updates automatically every Monday</div>
+	<script type="module" src="popup.js"></script>
+</body>
+
 </html>

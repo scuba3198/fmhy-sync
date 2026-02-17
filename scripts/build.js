@@ -6,6 +6,11 @@ import { TsconfigPathsPlugin as tsconfigPaths } from "@esbuild-plugins/tsconfig-
 const isWatch = process.argv.includes("--watch");
 
 async function build() {
+	// Pre-build cleanup
+	if (fs.existsSync("dist")) {
+		fs.emptyDirSync("dist");
+	}
+
 	const context = await esbuild.context({
 		entryPoints: [
 			{ in: "src/presentation/background/index.ts", out: "background" },
