@@ -4,7 +4,7 @@ FMHY Sync is a browser extension that automatically synchronizes the [FMHY starr
 
 ## 🚀 Features
 
-- **Automated Syncing**: Fetches the latest FMHY bookmarks daily (or manually on demand).
+- **Automated Syncing**: Fetches the latest FMHY bookmarks every Monday (or manually on demand).
 - **Auto-Organization**: Automatically creates and updates folders to match the FMHY structure.
 - **Privacy First**: Runs entirely in your browser with no external tracking.
 - **Clean UI**: Simple popup to monitor sync status and last update time.
