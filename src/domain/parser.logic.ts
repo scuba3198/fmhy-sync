@@ -1,5 +1,11 @@
-import { z } from "zod";
-import { BookmarkNodeSchema, type BookmarkFolder, type BookmarkNode } from "./bookmark.domain";
+import { Effect, Schema } from "effect";
+import { BookmarkNodeSchema, type BookmarkNode } from "./bookmark.domain";
+import { BookmarksSchemaDecodeError } from "./parser.errors";
+
+type MutableBookmarkFolder = {
+	title: string;
+	children: BookmarkNode[];
+};
 
 /**
  * Pure logic for parsing Netscape-formatted bookmarks HTML using DOMParser.
@@ -8,8 +14,8 @@ export function parseNetscapeBookmarks(
 	html: string,
 	folderName: string,
 	parser: DOMParser,
-): BookmarkNode[] {
-	const root: BookmarkFolder = { title: folderName, children: [] };
+): Effect.Effect<ReadonlyArray<BookmarkNode>, BookmarksSchemaDecodeError> {
+	const root: MutableBookmarkFolder = { title: folderName, children: [] };
 	const doc = parser.parseFromString(html, "text/html");
 
 	// Netscape bookmarks usually start with a <DL> or <dl>
@@ -18,11 +24,14 @@ export function parseNetscapeBookmarks(
 		processDL(dl, root);
 	}
 
-	// Validate the result using Zod
-	return z.array(BookmarkNodeSchema).parse(root.children);
+	return Schema.decodeUnknown(Schema.Array(BookmarkNodeSchema))(root.children).pipe(
+		Effect.catchTag("ParseError", (err) =>
+			Effect.fail(new BookmarksSchemaDecodeError({ message: String(err) })),
+		),
+	);
 }
 
-function processDL(dlElement: Element, parentNode: BookmarkFolder): void {
+function processDL(dlElement: Element, parentNode: MutableBookmarkFolder): void {
 	const children = Array.from(dlElement.children);
 
 	for (const child of children) {
@@ -39,7 +48,7 @@ function processDL(dlElement: Element, parentNode: BookmarkFolder): void {
 				// Handle placeholder folders by merging their children into the parent
 				const isPlaceholder = name === "/" || name === "";
 
-				const targetFolder: BookmarkFolder = isPlaceholder
+				const targetFolder: MutableBookmarkFolder = isPlaceholder
 					? parentNode
 					: { title: name, children: [] };
 

@@ -13,6 +13,7 @@ Thumbs.db
 .codex/
 .cursor/
 .gemini/
+.agent/
 
 # Build and dependencies
 node_modules/

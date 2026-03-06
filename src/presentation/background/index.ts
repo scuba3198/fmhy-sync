@@ -1,23 +1,32 @@
-import { syncService } from "@application/sync.service";
 import { ALARM_NAME, ALARM_PERIOD_MINUTES, ACTION_SYNC_NOW } from "@domain/constants";
-import { logger } from "@infrastructure/logger";
+import { Effect, ManagedRuntime } from "effect";
+import { SyncService } from "@application/sync.service";
+import { BackgroundLive } from "../layers";
 
 /**
  * Background script entry point.
  * Why: Presentation layer for Chrome Service Worker lifecycle.
  */
 
+const runtime = ManagedRuntime.make(BackgroundLive);
+
+function runSync(): void {
+	void runtime.runPromise(SyncService.syncBookmarks());
+}
+
 // Schedule sync for every Monday at 9:00 AM
 chrome.runtime.onInstalled.addListener(() => {
-	logger.info("Extension installed, setting up alarm and initial sync.");
+	void runtime.runPromise(
+		Effect.logInfo("Extension installed, setting up alarm and initial sync."),
+	);
 	setupAlarm();
-	void syncService.syncBookmarks();
+	runSync();
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
 	if (alarm.name === ALARM_NAME) {
-		logger.info("Alarm triggered, starting sync.");
-		void syncService.syncBookmarks();
+		void runtime.runPromise(Effect.logInfo("Alarm triggered, starting sync."));
+		runSync();
 	}
 });
 
@@ -30,7 +39,9 @@ function setupAlarm(): void {
 	nextMonday.setDate(now.getDate() + (daysUntilMonday === 0 ? 7 : daysUntilMonday));
 	nextMonday.setHours(9, 0, 0, 0);
 
-	logger.info(`Scheduling next sync for: ${nextMonday.toLocaleString()}`);
+	void runtime.runPromise(
+		Effect.logInfo(`Scheduling next sync for: ${nextMonday.toLocaleString()}`),
+	);
 
 	void chrome.alarms.create(ALARM_NAME, {
 		when: nextMonday.getTime(),
@@ -41,10 +52,11 @@ function setupAlarm(): void {
 // Listen for manual trigger from popup
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 	if (request && typeof request === "object" && request.action === ACTION_SYNC_NOW) {
-		logger.info("Manual sync triggered from popup.");
-		void syncService.syncBookmarks().then(() => {
-			sendResponse({ success: true });
-		});
+		void runtime.runPromise(Effect.logInfo("Manual sync triggered from popup."));
+		void runtime.runPromise(SyncService.syncBookmarks()).then(
+			() => sendResponse({ success: true }),
+			() => sendResponse({ success: false }),
+		);
 		return true; // Keep channel open
 	}
 	return false;

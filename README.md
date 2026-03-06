@@ -12,12 +12,14 @@ FMHY Sync is a browser extension that automatically synchronizes the [FMHY starr
 ## 🛠️ Installation
 
 ### Option 1: Load Unpacked (For Developers/Manual Install)
+
 1. Download this repository as a ZIP and extract it.
 2. Open Chrome and navigate to `chrome://extensions/`.
 3. Enable **Developer mode** in the top right corner.
 4. Click **Load unpacked** and select the `dist` folder from the extracted files.
 
 ### Option 2: Github Releases
+
 1. Go to the [Releases](https://github.com/scuba3198/fmhy-sync/releases) page.
 2. Download the latest `fmhy-sync-v*.zip` file.
 3. Follow the steps in Option 1 to load the extension.
@@ -35,14 +37,17 @@ FMHY Sync is a browser extension that automatically synchronizes the [FMHY starr
 If you'd like to contribute or build from source, follow these steps:
 
 ### Technical Architecture
+
 The project follows a strictly typed **Hexagonal Architecture**:
-- `domain/`: Pure business logic and data validation (Zod).
-- `infrastructure/`: Browser API wrappers and logging (Pino).
-- `application/`: Service orchestration and request tracing.
+
+- `domain/`: Pure business logic and data validation (Effect Schema).
+- `infrastructure/`: Browser API wrappers as Effect services (HTTP, storage, bookmarks, offscreen).
+- `application/`: Use-case orchestration with `Effect.Service` and correlation-scoped logging.
 - `presentation/`: Extension entry points (Popup, Background, Offscreen).
 
 ### Scripts Guide
+
 - `npm run build`: Generates the production bundle in the `dist` folder.
 - `npm run dev`: Build and watch for changes.
-- `npm run check`: Run the full verification suite (Lint, Type-Check, Test).
+- `npm run check`: Run the full verification suite (Format, Lint, Effect diagnostics, Type-Check, Test).
 - `npm run test`: Run unit tests with Vitest.

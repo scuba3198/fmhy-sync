@@ -1,36 +1,33 @@
-import { z } from "zod";
+import { Schema } from "effect";
 
-/**
- * Zod schema for a bookmark leaf.
- */
-export const BookmarkLeafSchema = z.object({
-	title: z.string().describe("The display name of the bookmark"),
-	url: z.string().url().describe("The destination URL"),
-});
+export const UrlString = Schema.String.pipe(Schema.pattern(/^https?:\/\/.+/));
+export type UrlString = Schema.Schema.Type<typeof UrlString>;
 
-/**
- * Zod schema for a bookmark folder.
- * Recursive definition for nested folders.
- */
-export type BookmarkFolder = {
+export type BookmarkLeaf = {
 	title: string;
-	children: BookmarkNode[];
+	url: UrlString;
 };
 
-export type BookmarkLeaf = z.infer<typeof BookmarkLeafSchema>;
+export type BookmarkFolder = {
+	title: string;
+	children: ReadonlyArray<BookmarkNode>;
+};
+
 export type BookmarkNode = BookmarkLeaf | BookmarkFolder;
 
-export const BookmarkFolderSchema: z.ZodType<BookmarkFolder> = z.lazy(() =>
-	z.object({
-		title: z.string().describe("The name of the folder"),
-		children: z.array(BookmarkNodeSchema).describe("Ordered list of sub-nodes"),
-	}),
+export const BookmarkLeafSchema: Schema.Schema<BookmarkLeaf> = Schema.Struct({
+	title: Schema.String,
+	url: UrlString,
+});
+
+export const BookmarkNodeSchema: Schema.Schema<BookmarkNode> = Schema.suspend(() =>
+	Schema.Union(BookmarkLeafSchema, BookmarkFolderSchema),
 );
 
-export const BookmarkNodeSchema: z.ZodType<BookmarkNode> = z.union([
-	BookmarkLeafSchema,
-	BookmarkFolderSchema,
-]);
+export const BookmarkFolderSchema: Schema.Schema<BookmarkFolder> = Schema.Struct({
+	title: Schema.String,
+	children: Schema.Array(BookmarkNodeSchema),
+});
 
 /**
  * Type guard: check if a BookmarkNode is a folder.

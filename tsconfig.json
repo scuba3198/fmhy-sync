@@ -6,6 +6,15 @@
 		"moduleResolution": "bundler",
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"noEmit": true,
+		"plugins": [
+			{
+				"name": "@effect/language-service",
+				"refactors": { "allEnabled": true },
+				"diagnostics": { "allEnabled": true },
+				"quickinfo": { "allEnabled": true },
+				"completions": { "allEnabled": true }
+			}
+		],
 		"types": ["chrome-types", "vitest/globals"],
 		"baseUrl": ".",
 		"paths": {

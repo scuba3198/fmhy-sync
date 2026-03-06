@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { parseNetscapeBookmarks } from "./parser.logic";
 import { isBookmarkFolder } from "./bookmark.domain";
 import { JSDOM } from "jsdom";
+import { Effect } from "effect";
 
 describe("parseNetscapeBookmarks", () => {
 	it("should parse a simple Netscape bookmarks file", () => {
@@ -22,7 +23,7 @@ describe("parseNetscapeBookmarks", () => {
 		const dom = new JSDOM(html);
 		const parser = new dom.window.DOMParser();
 
-		const tree = parseNetscapeBookmarks(html, "Root", parser);
+		const tree = Effect.runSync(parseNetscapeBookmarks(html, "Root", parser));
 
 		expect(tree).toHaveLength(2);
 		const folder = tree[0];
@@ -52,7 +53,7 @@ describe("parseNetscapeBookmarks", () => {
 		`;
 		const dom = new JSDOM(html);
 		const parser = new dom.window.DOMParser();
-		const tree = parseNetscapeBookmarks(html, "Root", parser);
+		const tree = Effect.runSync(parseNetscapeBookmarks(html, "Root", parser));
 
 		expect(tree).toHaveLength(1);
 		const first = tree[0];
