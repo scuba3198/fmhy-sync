@@ -19,7 +19,7 @@ async function build() {
 		],
 		bundle: true,
 		minify: true,
-		sourcemap: true,
+		sourcemap: false,
 		platform: "browser",
 		outdir: "dist",
 		logLevel: "info",
