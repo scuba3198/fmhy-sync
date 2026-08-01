@@ -1,0 +1,26 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor and tool metadata
+.vscode/
+.idea/
+.codex/
+.gemini/
+
+# Dependencies and generated output
+node_modules/
+dist/
+release/
+lib/
+*.res.mjs
+*.res.ast
+*.res.cmi
+*.res.cmj
+*.res.cmt
+.rescript
+
+# Logs, coverage, and local release archives
+*.log
+coverage/
+*.zip

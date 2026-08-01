@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "FMHY Sync",
+  "version": "2.0.0",
+  "description": "Rebuild FMHY's public starred bookmark export in your bookmarks bar.",
+  "minimum_chrome_version": "111",
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://raw.githubusercontent.com/fmhy/bookmarks/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "FMHY Sync",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html"
+  }
+}
